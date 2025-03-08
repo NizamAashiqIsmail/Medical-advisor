@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Chatbot and Hospital Recommendation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e9f5ff, #ffffff);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Medical Chatbot and Hospital Recommendation</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ messages[0] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Form Section -->
+        <form method="POST" action="/app">
+            <div class="mb-3">
+                <label for="user_input" class="form-label">Describe Your Symptoms:</label>
+                <textarea class="form-control" id="user_input" name="user_input" rows="4">{{ user_input }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" name="predict" class="btn btn-secondary">Predict</button>
+            </div>
+
+            <!-- Model Output (Below Symptoms) -->
+            {% if model_prediction %}
+                <div class="alert alert-info mt-3">
+                    <strong>Model Output:</strong> {{ model_prediction }}
+                </div>
+            {% endif %}
+
+            <hr>
+
+            <div class="mb-3">
+                <label for="condition" class="form-label">Medical Condition:</label>
+                <input type="text" class="form-control" id="condition" name="condition" value="{{ condition }}" placeholder="Enter medical condition">
+            </div>
+
+            <div class="mb-3">
+                <label for="state" class="form-label">State:</label>
+                <select id="state" name="state" class="form-select">
+                    <option value="">Select State</option>
+                    {% for state_option in states %}
+                        <option value="{{ state_option }}" {% if state_option == state %}selected{% endif %}>{{ state_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="district" class="form-label">District:</label>
+                <select id="district" name="district" class="form-select">
+                    <option value="">Select District</option>
+                    {% if district %}
+                        <option value="{{ district }}" selected>{{ district }}</option>
+                    {% endif %}
+                </select>
+            </div>
+
+            <button type="submit" name="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        <hr>
+
+        <!-- Chatbot Response Section -->
+        <h2>Chatbot Response</h2>
+        <ul>
+            {% for response in chatbot_response %}
+                <li>{{ response }}</li>
+            {% endfor %}
+        </ul>
+
+        <hr>
+
+        <!-- Hospital Recommendations Section -->
+        <h2>Recommended Hospitals</h2>    
+        <form method="POST" action="/download_receipt">                                                     
+        {% if hospital_results %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Hospital Name</th>
+                            <th>Address</th>
+                            <th>Contact Number</th>
+                            <th>Rating</th>
+                            <th>State</th>
+                            <th>District</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hospital in hospital_results %}
+                            <tr>
+                                <td><input type="checkbox" name="hospitals" value="{{ hospital['Hospital_Name'] | escape }}">
+                                </td>
+                                <td>{{ hospital['Hospital_Name'] }}</td>
+                                <td>{{ hospital['Address'] }}</td>
+                                <td>{{ hospital['Contact_number'] }}</td>
+                                <td>{{ hospital['Rating'] }}</td>
+                                <td>{{ hospital['State'] }}</td>
+                                <td>{{ hospital['District'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No hospitals to display.</p>
+        {% endif %}
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">Download Receipt</button>
+        </div>
+        </form>
+
+        <hr>
+        
+        <!-- Feedback Section -->
+        <h2>Submit Feedback</h2>
+        <form method="POST" action="/feedback">
+            <div class="mb-3">
+                <textarea class="form-control" name="feedback" rows="4" placeholder="Write your feedback here..." required></textarea>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-warning">Submit Feedback</button>
+            </div>
+        </form>
+        <hr>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#state").change(function () {
+                const state = $(this).val();
+                if (state) {
+                    $.ajax({
+                        url: "/get_districts",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ state: state }),
+                        success: function (response) {
+                            const districtSelect = $("#district");
+                            districtSelect.empty();
+                            districtSelect.append('<option value="">Select District</option>');
+                            response.districts.forEach(function (district) {
+                                districtSelect.append(`<option value="${district}">${district}</option>`);
+                            });
+                        },
+                    });
+                } else {
+                    $("#district").empty().append('<option value="">Select District</option>');
+                }
+            });
+        });
+    </script>
+    <hr>
+</body>
+</html>

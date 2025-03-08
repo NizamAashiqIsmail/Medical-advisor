@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Chatbot - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background: url('https://www.example.com/medical-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .login-header img {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+        .login-header h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="https://www.example.com/medical-icon.png" alt="Medical Icon">
+            <h1>Welcome Back</h1>
+            <p>Please login to access your account</p>
+        </div>
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="age" class="form-label">Age</label>
+                <input type="number" class="form-control" id="age" name="age" placeholder="Enter your age" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender</label>
+                <select id="gender" name="gender" class="form-select" required>
+                    <option value="">--Select Gender--</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number (Optional)</label>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter your phone number">
+            </div>
+
+            <button type="submit" class="btn btn-custom w-100">Login</button>
+        </form>
+
+        <div class="login-footer">
+            <p>Don't have an account? <a href="#" class="text-primary">Register here</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
